@@ -7,14 +7,14 @@ import Homepages from './src/pages/Homepages';
 const Stack = createNativeStackNavigator();
 
 const routing = () => {
-  return (
-      <NavigationContainer>
-          <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Home'>
-              <Stack.Screen name='Home' component={Homepages} />
-              <Stack.Screen name="Library" component={LibraryPages} />
-          </Stack.Navigator>
-      </NavigationContainer>
-  );
+    return (
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Home'>
+                <Stack.Screen name='Home' component={Homepages} />
+                <Stack.Screen name="Library" component={LibraryPages} />
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
 };
 
 export default routing;

@@ -1,10 +1,10 @@
-import { StyleSheet, View, ScrollView, Text} from 'react-native';
-import React from 'react';
+import { StyleSheet, View} from 'react-native';
+import * as React from "react";
 import Video from 'react-native-video';
 import CarouselMusicCard from '../components/CarouselMusiccard';
 
-let Homepages = () => {
 
+let Homepages = () => {
 
   return (
     <>
@@ -18,7 +18,7 @@ let Homepages = () => {
           style={styles.backgroundVideo}
           resizeMode="cover"
           repeat={true}
-          volume={0} //Pr: user dapat mengatur volume nanti
+          volume={10} //Pr: user dapat mengatur volume nanti
         ></Video>
         <View style={{flex: 1}}>
           <View style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 20}}>
@@ -28,8 +28,9 @@ let Homepages = () => {
           <View style={{flex: 1}}>
 
           </View>
-          {/* carousel music */}
-          <CarouselMusicCard />
+          <View style={{ flex: 1}}>
+            <CarouselMusicCard />
+          </View>
         </View>
     </>
   );
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     height: 160,
     width: '90%',
     backgroundColor: 'rgba(15, 15, 15, 0.6)',
-    borderRadius: 20,
+    borderRadius: 10,
   },
 });
 
