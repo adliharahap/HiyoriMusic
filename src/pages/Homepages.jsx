@@ -1,8 +1,9 @@
-import { StyleSheet, View} from 'react-native';
-import * as React from "react";
+import { StyleSheet, View, ScrollView, Dimensions, Text} from 'react-native';
+import * as React from 'react';
+import { useRef, useState } from 'react';
 import Video from 'react-native-video';
 import CarouselMusicCard from '../components/CarouselMusiccard';
-
+import { useNavigation } from '@react-navigation/native';
 
 let Homepages = () => {
 
@@ -18,15 +19,15 @@ let Homepages = () => {
           style={styles.backgroundVideo}
           resizeMode="cover"
           repeat={true}
-          volume={10} //Pr: user dapat mengatur volume nanti
+          volume={0} //Pr: user dapat mengatur volume nanti
         ></Video>
-        <View style={{flex: 1}}>
+        <View style={{flex: 1, overflow: 'hidden'}}>
           <View style={{flex: 1, justifyContent: 'flex-start', alignItems: 'center', paddingTop: 20}}>
             <View style={styles.MusicSettings}>
             </View>
           </View>
           <View style={{flex: 1}}>
-
+            
           </View>
           <View style={{ flex: 1}}>
             <CarouselMusicCard />
