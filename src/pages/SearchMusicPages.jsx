@@ -2,6 +2,7 @@ import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import React from 'react';
 import Navbar from '../components/Navbar';
 import { Svg, Path } from 'react-native-svg';
+import HistoryList from '../components/HistoryList';
 
 const History = () => {
     return (
@@ -35,8 +36,12 @@ const SearchMusicPages = () => {
                             </TouchableOpacity>
                         </View>
                     </View>
-                    <View style={{flex: 1,}}>
-
+                    <View style={{flex: 1, padding: 10}}>
+                        <HistoryList />
+                        <HistoryList />
+                        <HistoryList />
+                        <HistoryList />
+                        <HistoryList />
                     </View>
                 </View>
             </View>
