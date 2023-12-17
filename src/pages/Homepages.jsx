@@ -32,39 +32,39 @@ const HomePages = ( {navigation}) => {
                         {/* bagian card music */}
                         <View style={{height: '100%', width: '100%', display: 'flex', flexDirection:'row', justifyContent: 'space-around', flexWrap: 'wrap'}}>
                             <TouchableOpacity style={{height: 70, width: '46%', backgroundColor: '#272829', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection:'row', marginBottom: 10}} onPress={() => navigation.navigate('Wallpaperpages')}>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
-                                <Svg height="28" viewBox="0 -960 960 960" width="28" fill='#f807cb'><Path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></Svg>
-                            </View>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
-                                <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Favorite Music</Text>
-                            </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
+                                    <Svg height="28" viewBox="0 -960 960 960" width="28" fill='#f807cb'><Path d="m480-120-58-52q-101-91-167-157T150-447.5Q111-500 95.5-544T80-634q0-94 63-157t157-63q52 0 99 22t81 62q34-40 81-62t99-22q94 0 157 63t63 157q0 46-15.5 90T810-447.5Q771-395 705-329T538-172l-58 52Zm0-108q96-86 158-147.5t98-107q36-45.5 50-81t14-70.5q0-60-40-100t-100-40q-47 0-87 26.5T518-680h-76q-15-41-55-67.5T300-774q-60 0-100 40t-40 100q0 35 14 70.5t50 81q36 45.5 98 107T480-228Zm0-273Z"/></Svg>
+                                </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
+                                    <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Favorite Music</Text>
+                                </View>
                             </TouchableOpacity>
 
                             <View style={{height: 70, width: '46%', backgroundColor: '#272829', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection:'row',  marginBottom: 10}}>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
-                                <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#FFD700"><Path d="m668-340 152-130 120 10-176 153 52 227-102-62-46-198Zm-94-292-42-98 46-110 92 217-96-9ZM294-247l126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM173-80l65-281L20-550l288-25 112-265 112 265 288 25-218 189 65 281-247-149L173-80Zm247-340Z"/></Svg>
-                            </View>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
-                                <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Favorite Artist</Text>
-                            </View>
-                            </View>
-
-                            <View style={{height: 70, width: '46%', backgroundColor: '#272829', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection:'row',  marginBottom: 10}}>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
-                            <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#39A7FF"><Path d="M500-360q42 0 71-29t29-71v-220h120v-80H560v220q-13-10-28-15t-32-5q-42 0-71 29t-29 71q0 42 29 71t71 29ZM320-240q-33 0-56.5-23.5T240-320v-480q0-33 23.5-56.5T320-880h480q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H320Zm0-80h480v-480H320v480ZM160-80q-33 0-56.5-23.5T80-160v-560h80v560h560v80H160Zm160-720v480-480Z"/></Svg>
-                            </View>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
-                                <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>All Albums</Text>
-                            </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
+                                    <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#FFD700"><Path d="m668-340 152-130 120 10-176 153 52 227-102-62-46-198Zm-94-292-42-98 46-110 92 217-96-9ZM294-247l126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM173-80l65-281L20-550l288-25 112-265 112 265 288 25-218 189 65 281-247-149L173-80Zm247-340Z"/></Svg>
+                                </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
+                                    <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Favorite Artist</Text>
+                                </View>
                             </View>
 
                             <View style={{height: 70, width: '46%', backgroundColor: '#272829', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection:'row',  marginBottom: 10}}>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
-                            <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#1AACAC"><Path d="M160-360q-33 0-56.5-23.5T80-440v-360q0-33 23.5-56.5T160-880h360q33 0 56.5 23.5T600-800v360q0 33-23.5 56.5T520-360H160Zm0-80h360v-360H160v360Zm160-70-48-66-72 96h280l-92-120-68 90ZM680-80q-50 0-85-35t-35-85q0-50 35-85t85-35q11 0 20.5 2t19.5 5v-207h160v80h-80v240q0 50-35 85t-85 35ZM160-440v-360 360Z"/></Svg>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
+                                    <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#39A7FF"><Path d="M500-360q42 0 71-29t29-71v-220h120v-80H560v220q-13-10-28-15t-32-5q-42 0-71 29t-29 71q0 42 29 71t71 29ZM320-240q-33 0-56.5-23.5T240-320v-480q0-33 23.5-56.5T320-880h480q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H320Zm0-80h480v-480H320v480ZM160-80q-33 0-56.5-23.5T80-160v-560h80v560h560v80H160Zm160-720v480-480Z"/></Svg>
+                                </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
+                                    <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>All Albums</Text>
+                                </View>
                             </View>
-                            <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
-                                <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Last Add</Text>
-                            </View>
+
+                            <View style={{height: 70, width: '46%', backgroundColor: '#272829', borderRadius: 10, overflow: 'hidden', display: 'flex', flexDirection:'row',  marginBottom: 10}}>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70, width: 45}}>
+                                    <Svg height="28" viewBox="0 -960 960 960" width="28" fill="#1AACAC"><Path d="M160-360q-33 0-56.5-23.5T80-440v-360q0-33 23.5-56.5T160-880h360q33 0 56.5 23.5T600-800v360q0 33-23.5 56.5T520-360H160Zm0-80h360v-360H160v360Zm160-70-48-66-72 96h280l-92-120-68 90ZM680-80q-50 0-85-35t-35-85q0-50 35-85t85-35q11 0 20.5 2t19.5 5v-207h160v80h-80v240q0 50-35 85t-85 35ZM160-440v-360 360Z"/></Svg>
+                                </View>
+                                <View style={{display:'flex', justifyContent: 'center', alignItems: 'center', height: 70}}>
+                                    <Text style={{color: 'white', fontFamily: 'Poppins-Medium', fontSize: 14, textAlign: 'center'}}>Last Add</Text>
+                                </View>
                             </View>
                         </View>
                     </View>
@@ -77,9 +77,9 @@ const HomePages = ( {navigation}) => {
                     </View>
                     <ScrollView horizontal={true} style={{overflow: 'hidden'}}>
                         <View style={{display: 'flex', flexDirection: 'row', gap: 15}}>
-                        <FavoriteMusicCard NameMusic="People with badguys" Artist="Libianca"></FavoriteMusicCard>
-                        <FavoriteMusicCard NameMusic="People" Artist="Libianca"></FavoriteMusicCard>
-                        <FavoriteMusicCard NameMusic="People" Artist="Libianca"></FavoriteMusicCard>
+                            <FavoriteMusicCard NameMusic="People with badguys" Artist="Libianca"></FavoriteMusicCard>
+                            <FavoriteMusicCard NameMusic="People" Artist="Libianca"></FavoriteMusicCard>
+                            <FavoriteMusicCard NameMusic="People" Artist="Libianca"></FavoriteMusicCard>
                         </View>
                     </ScrollView>
                     </View>
@@ -88,7 +88,7 @@ const HomePages = ( {navigation}) => {
                 <View style={{height: 'auto', width: '100%', paddingLeft: 10, paddingRight: 10}}>
                 <View>
                     <View>
-                    <Text style={{fontSize: 22, fontFamily: 'Poppins-SemiBold', color: 'white', marginBottom: 10}}>Direkomendasikan Khusus Hari Ini</Text>
+                        <Text style={{fontSize: 22, fontFamily: 'Poppins-SemiBold', color: 'white', marginBottom: 10}}>Direkomendasikan Khusus Hari Ini</Text>
                     </View>
                     <ScrollView horizontal={true} style={{overflow: 'hidden'}}>
                     <View style={{display: 'flex', flexDirection: 'row', gap: 15}}>
@@ -101,7 +101,7 @@ const HomePages = ( {navigation}) => {
 
                 <View>
                     <View>
-                    <Text style={{fontSize: 22, fontFamily: 'Poppins-SemiBold', color: 'white', marginBottom: 10}}>Music Yang Disukai</Text>
+                        <Text style={{fontSize: 22, fontFamily: 'Poppins-SemiBold', color: 'white', marginBottom: 10}}>Music Yang Disukai</Text>
                     </View>
                     <ScrollView horizontal={true} style={{overflow: 'hidden'}}>
                     <View style={{display: 'flex', flexDirection: 'row', gap: 15}}>
