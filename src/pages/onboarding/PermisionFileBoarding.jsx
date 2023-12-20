@@ -11,7 +11,7 @@ const PermisionFileBoarding = () => {
 
             if (result === RESULTS.GRANTED) {
                 console.log("alhamdullilah");
-                navigation.replace('Home');
+                // navigation.replace('Home');
             }else if(result === RESULTS.DENIED) {
                 console.log("astafirullah");
             }

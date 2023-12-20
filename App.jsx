@@ -9,15 +9,17 @@ import PlaylistPages from './src/pages/PlaylistPages';
 import PermisionFileBoarding from './src/pages/onboarding/PermisionFileBoarding';
 import SplashScreenPages from './src/pages/SplashScreenPages';
 import OnboardingScreen from './src/pages/onboarding/OnboardingScreen';
+import NameInputScreen from './src/pages/onboarding/NameInputScreen';
 
 const Stack = createNativeStackNavigator();
 
 const routing = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='SplashScreen'>
+            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Onboarding'>
                 <Stack.Screen name='SplashScreen' component={SplashScreenPages} />
                 <Stack.Screen name='Onboarding' component={OnboardingScreen} />
+                <Stack.Screen name='InputName' component={NameInputScreen} />
                 <Stack.Screen name='Home' component={HomePages} />
                 <Stack.Screen name='Music' component={MusicPages} />
                 <Stack.Screen name='SearchMusic' component={SearchMusicPages} />
