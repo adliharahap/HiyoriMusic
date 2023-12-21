@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, Dimensions, TouchableOpacity } from 'react-native';
+import { View, Text, Image, Dimensions, TouchableOpacity, StatusBar } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { check ,request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Svg, Path } from 'react-native-svg';
+import Notification from './Notification';
 
-const OnboardingScreen = () => {
-    
+const OnboardingScreen = () => {    
     const OnboardingData = [
         {
             title: "Selamat Datang!",
@@ -43,6 +42,7 @@ const OnboardingScreen = () => {
 
     return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
+            <StatusBar backgroundColor="white" barStyle="dark-content" />
             <View style={{height: 80, justifyContent: 'center', alignItems: 'center', marginBottom: 20}}>
                 <Text style={{color: '#000000', fontFamily: 'Poppins-Black', fontSize: 24}}>Hiyori Music</Text>
             </View>
@@ -82,11 +82,27 @@ const OnboardingComponent = (props) => {
     const {title, description, urlimg} = props;
     const [TampilkanButtonInputNama] = useState("Tuliskan Nama Kamu");
     const [TampilkanButtonIzinFile] = useState("Izin Akses File");
+    const [TampilkanButtonGetStarted] = useState("Hore! Siap Menikmati");
     const [NameComplete, SetIfNameComplete] = useState("#001B79");
     const [ButtonUpdateName, setIFNameUpdate] = useState("Tuliskan Nama");
     const [IzinFileComplete, SetiIfizinFileComplete] = useState('#001B79');
     const [IzinBtnUpdateName, SetIzinBtnUpdateName] = useState('Berikan Izin');
     const [storagePermissionStatus, setStoragePermissionStatus] = useState('');
+    const [showNotification, setShowNotification] = useState(false);
+    const [NotificationStatus, setNotificationStatus] = useState();
+    const [NotificationMessage, SetNotificationMessage] = useState('');
+
+    // const handleShowNotification = () => {
+    //     setShowNotification(true);
+    // };
+
+    const handleCloseNotification = () => {
+        setShowNotification(false);
+
+        if(NotificationStatus === true) {
+            navigation.replace('Home');
+        }
+    };
 
     useEffect(() => {
         checkUserName();
@@ -102,16 +118,17 @@ const OnboardingComponent = (props) => {
             setStoragePermissionStatus({ read: readPermissionResult, write: writePermissionResult });
         
             // Log status izin ke konsol
-            console.log('Read Permission:', readPermissionResult);
-            console.log('Write Permission:', writePermissionResult);
+            // console.log('Read Permission:', readPermissionResult);
+            // console.log('Write Permission:', writePermissionResult);
         
             // Contoh: Jika keduanya diberikan, lakukan sesuatu
             if (readPermissionResult === 'granted' && writePermissionResult === 'granted') {
                 SetiIfizinFileComplete('#008000');
                 SetIzinBtnUpdateName('Izin Diberikan');
+                return true;
 
             }else if(readPermissionResult === 'denied') {
-                console.log("error");
+                return false;
             }
         } catch (error) {
             console.error('Error checking storage permission:', error);
@@ -125,9 +142,12 @@ const OnboardingComponent = (props) => {
             if (GetDatauser) {
                 setIFNameUpdate("Update Nama");
                 SetIfNameComplete("#008000");
+                return true;
+            }else {
+                return false;
             }
         } catch (error) {
-            
+            console.log(error);
         }
     }
 
@@ -136,15 +156,50 @@ const OnboardingComponent = (props) => {
             console.log(result);
 
             if (result === RESULTS.GRANTED) {
-                console.log("alhamdullilah");
                 checkStoragePermission();
                 // navigation.replace('Home');
             }else if(result === RESULTS.DENIED) {
                 console.log("astafirullah");
             }else if(result === RESULTS.BLOCKED) {
                 console.log("im fine bjir");
+                navigation.replace('AksesBLocked');
             }
         });
+    };
+
+    const CheckNameandFileAkses = async () => {
+        try {
+            const storagePermissionResult = await checkStoragePermission();
+            const userNameResult = await checkUserName();
+        
+            if (storagePermissionResult && userNameResult) {
+                console.log("File akses diizinkan");
+                setNotificationStatus(true);
+                SetNotificationMessage("Selamat! Nama kamu berhasil disimpan, dan akses file telah diizinkan. Kamu siap menjelajahi dunia musik bersama Hiyori Music!");
+                setShowNotification(true);
+                AsyncStorage.setItem('onboardingStatus', 'done');
+            } else {
+                console.log("File akses ditolak");
+
+                if(!storagePermissionResult && !userNameResult) {
+                    setNotificationStatus(false);
+                    SetNotificationMessage("Mohon isi nama terlebih dahulu agar kami dapat memberikan pengalaman yang lebih personal. Jangan lupa izinkan aplikasi untuk mengakses file agar kamu bisa menikmati semua fitur Hiyori Music!");
+                    setShowNotification(true);
+
+                }else if(!storagePermissionResult) {
+                    setNotificationStatus(false);
+                    SetNotificationMessage("Tolong izinkan aplikasi untuk mengakses file di perangkat Kamu. Ini penting untuk memberikan pengalaman mendengarkan musik terbaik tanpa hambatan. Terima kasih!");
+                    setShowNotification(true);
+
+                }else if(!userNameResult) {
+                    setNotificationStatus(false);
+                    SetNotificationMessage("Mari lengkapi pengalaman musikmu! Tolong tuliskan nama Kamu agar kami dapat menyajikan layanan yang lebih personal dan menyenangkan. Terima kasih banyak!");
+                    setShowNotification(true);
+                }
+            }
+        } catch (error) {
+            console.error('Error checking name and file access:', error);
+        }
     };
 
     return (
@@ -177,6 +232,18 @@ const OnboardingComponent = (props) => {
                     }} style={{height: 60, width: 170,backgroundColor: IzinFileComplete, justifyContent: 'center', alignItems: 'center', borderRadius: 100, display: title === TampilkanButtonIzinFile ? 'flex' : 'none'}}>
                     <Text style={{color: 'white', fontFamily: 'Poppins-SemiBold', fontSize: 16, textAlign: 'center'}}>{IzinBtnUpdateName}</Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={CheckNameandFileAkses} style={{height: 60, width: 170, backgroundColor: '#001B79', justifyContent: 'center', alignItems: 'center', borderRadius: 100, display: title === TampilkanButtonGetStarted ? 'flex' : 'none'}}>
+                    <Text style={{color: 'white', fontFamily: 'Poppins-SemiBold', fontSize: 16, textAlign: 'center'}}>Get Started</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={{position: 'absolute',width: '100%', top: 50, justifyContent: 'center', alignItems: 'center'}}>
+                {showNotification && (
+                    <Notification
+                    message= {NotificationMessage}
+                    onClose={handleCloseNotification}
+                    status= {NotificationStatus}
+                    />
+                )}
             </View>
         </>
     );

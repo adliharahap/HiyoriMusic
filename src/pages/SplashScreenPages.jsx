@@ -25,22 +25,25 @@ const SplashScreenPages = () => {
             if (readPermission === RESULTS.GRANTED && writePermission === RESULTS.GRANTED) {
                 navigation.replace('Home');
             } else {
-                console.log("onboarding done and the permision is denied or blocked");
-                // navigation.replace('OtherScreen'); // Ganti dengan nama screen lain jika izin ditolak
+                if(readPermission === RESULTS.DENIED && writePermission === RESULTS.DENIED) {
+                    navigation.replace('AksesDenied');
+                }else if(readPermission === RESULTS.BLOCKED && writePermission === RESULTS.BLOCKED) {
+                    navigation.replace('AksesDenied');
+                }
             }
         } else {
             // Onboarding belum dilakukan, arahkan ke OnboardingScreen
             navigation.replace('Onboarding');
             // Tandai bahwa Onboarding sudah dilakukan
-            AsyncStorage.setItem('onboardingStatus', 'done');
+            // AsyncStorage.setItem('onboardingStatus', 'done');
         }
     };
 
-    const handleResetOnboarding = async () => {
-        // Hapus status Onboarding dari penyimpanan lokal
-        await AsyncStorage.removeItem('onboardingStatus');
-        console.log('Status Onboarding di-reset');
-    };
+    // const handleResetOnboarding = async () => {
+    //     // Hapus status Onboarding dari penyimpanan lokal
+    //     await AsyncStorage.removeItem('onboardingStatus');
+    //     console.log('Status Onboarding di-reset');
+    // };
 
     return (
         <View style={{backgroundColor: 'rgba(15, 15, 15, 1)', flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -59,7 +62,7 @@ const SplashScreenPages = () => {
                     <Text style={{fontFamily: 'Poppins-Light'}}>Adli Rahman Harun Harahap</Text>
                 </View>
             </View>
-            <Button title='reset onboarding' onPress={handleResetOnboarding}></Button>
+            {/* <Button title='reset onboarding' onPress={handleResetOnboarding}></Button> */}
         </View>
     );
 };
