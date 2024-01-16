@@ -18,7 +18,7 @@ export const GetMusicFiles = () => {
 
       // Periksa apakah folderContents null atau kosong
       if (!folderContents || folderContents.length === 0) {
-        console.log(`MP3 files in folder [${folderPath}] = []`);
+        // console.log(`MP3 files in folder [${folderPath}] = []`);
         return;
       }
 
@@ -55,17 +55,17 @@ export const GetMusicFiles = () => {
 
       try {
         await AsyncStorage.setItem('musicData', JSON.stringify(musicData));
-        console.log("Berhasil menyimpan data");
+        // console.log("Berhasil menyimpan data");
       } catch (error) {
         console.log("error: ",error);
       }
 
-      try {
-        const getdatamusic = await AsyncStorage.getItem('musicData');
-        console.log(getdatamusic);
-      } catch (error) {
-        console.log("error: ", error);
-      }
+      // try {
+      //   const getdatamusic = await AsyncStorage.getItem('musicData');
+      //   console.log(getdatamusic);
+      // } catch (error) {
+      //   console.log("error: ", error);
+      // }
     } catch (error) {
       console.log(`Error processing folder [${folderPath}]:`, error);
     }

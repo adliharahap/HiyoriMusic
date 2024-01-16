@@ -30,16 +30,8 @@ function MusicPages() {
                 {/* bagian list music */}
                 <ScrollView style={{flex: 1, marginTop: 4, backgroundColor: '#191919', padding: 10}}>
                     <View style={{flex: 1, marginBottom: 80}}>
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
-                        <MusicList />
+                        <MusicList title="psycho" artist="red-velvet" duration="03.00" />
+                        <MusicList title="die for you" artist="red-velvet" duration="03.00" />
                     </View>
                 </ScrollView>
             </View>
@@ -48,4 +40,4 @@ function MusicPages() {
     );
 };
 
-export default MusicPages
+export default MusicPages;

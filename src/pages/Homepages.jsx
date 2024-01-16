@@ -1,11 +1,25 @@
-import React from "react";
+import React,{useEffect} from "react";
 import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import LinearGradient from 'react-native-linear-gradient';
 import FavoriteMusicCard from "../components/Favorite-music-card";
 import Svg, { Path } from 'react-native-svg';
 import Navbar from "../components/Navbar";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomePages = ( {navigation}) => {
+    const checkmusikData = async() => {
+        // Setelah GetMusicFiles selesai, dapatkan data dari AsyncStorage
+        const storedMusicData = await AsyncStorage.getItem('musicData');
+        const parsedStoredMusicData = JSON.parse(storedMusicData);
+
+        // Tampilkan data yang sudah disimpan
+        console.log('Stored music data:', parsedStoredMusicData);
+    }
+
+    useEffect(() => {
+        checkmusikData()
+    }, []);
+
     return (
         <>
         <ScrollView style={{flex: 1}}>

@@ -3,16 +3,13 @@ import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { useNavigation } from '@react-navigation/native';
-import RNFS from 'react-native-fs';
-// var RNFS = require('react-native-fs');
+import { GetMusicFiles } from '../utils/GetMusicFiles_Service';
 
 const SplashScreenPages = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
-        setTimeout(() => {
-            checkPermissionsAndNavigate();
-        }, 3000);
+        checkPermissionsAndNavigate();
     }, []);
 
     const checkPermissionsAndNavigate = async () => {
@@ -25,9 +22,10 @@ const SplashScreenPages = () => {
             const writePermission = await check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
 
             if (readPermission === RESULTS.GRANTED && writePermission === RESULTS.GRANTED) {
-                console.log("p");
-                scanMP3Files();
-                // navigation.replace('Home');
+                await scanMP3Files();
+                setTimeout(() => {
+                    navigation.replace('Home');
+                }, 3000);
             } else {
                 if(readPermission === RESULTS.DENIED && writePermission === RESULTS.DENIED) {
                     navigation.replace('AksesDenied');
@@ -45,20 +43,10 @@ const SplashScreenPages = () => {
 
     const scanMP3Files = async () => {
         try {
-            const ExternalStorage = RNFS.ExternalStorageDirectoryPath;
+            await GetMusicFiles();
 
-            console.log(ExternalStorage);
-            const externalFiles = await RNFS.readDir(ExternalStorage);
-            if (externalFiles) {
-                console.log('List of files in external storage:', externalFiles);
-
-                // Optional: log the paths of the files
-                externalFiles.forEach(file => {
-                    console.log('File Path:', file.path);
-                });
-            }
         } catch (error) {
-            console.log('error bang : ', error );
+            console.error('Error fetching music data:', error);
         }
     };
 

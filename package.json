@@ -13,7 +13,9 @@
     "@react-native-async-storage/async-storage": "^1.21.0",
     "@react-navigation/native": "^6.1.9",
     "@react-navigation/native-stack": "^6.9.17",
-    "deprecated-react-native-prop-types": "^5.0.0",
+    "buffer": "^6.0.3",
+    "id3-parser": "^3.0.0",
+    "jsmediatags": "^3.9.7",
     "react": "18.2.0",
     "react-native": "0.72.7",
     "react-native-fs": "^2.20.0",
@@ -28,6 +30,7 @@
     "react-native-screens": "^3.27.0",
     "react-native-sound": "^0.11.2",
     "react-native-svg": "^14.0.0",
+    "react-native-track-player": "^4.0.1",
     "react-native-video": "^5.2.1"
   },
   "devDependencies": {
