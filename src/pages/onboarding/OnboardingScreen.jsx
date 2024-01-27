@@ -100,7 +100,7 @@ const OnboardingComponent = (props) => {
         setShowNotification(false);
 
         if(NotificationStatus === true) {
-            navigation.replace('Home');
+            navigation.replace('SplashScreen');
         }
     };
 

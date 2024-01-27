@@ -4,8 +4,24 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const GetMusicFiles = () => {
   const EksternalStorage = RNFS.ExternalStorageDirectoryPath;
 
-  const ignoredFolders = ['Android', 'WhatsApp', 'shopeeID', '.mcs', '.sstmp', '.ext4']; // Tambahkan folder yang ingin diabaikan
+  const ignoredFolders = ['Android', 'WhatsApp', 'shopeeID', '.mcs', '.sstmp', '.ext4','.datatmp','.804c9a5b09dc1e99aefe17dd530290c3']; // Tambahkan folder yang ingin diabaikan
   const musicData = {};
+
+  const getMusic = async () => {
+    try {
+      const musicFiles = await RNFS.readDir(EksternalStorage);
+      
+      // Proses setiap folder di external storage
+      for (const musicFile of musicFiles) {
+        await processFolder(musicFile.path);
+      }
+      console.log('Finished processing music files');
+    } catch (error) {
+      console.error('Error reading Music folder:', error);
+    }
+  };
+  getMusic();
+  
   const processFolder = async (folderPath) => {
     try {
       // Cek apakah nama folder saat ini ada di dalam daftar yang diabaikan
@@ -70,20 +86,4 @@ export const GetMusicFiles = () => {
       console.log(`Error processing folder [${folderPath}]:`, error);
     }
   };
-
-  const getMusic = async () => {
-    try {
-      const musicFiles = await RNFS.readDir(EksternalStorage);
-      
-      // Proses setiap folder di external storage
-      for (const musicFile of musicFiles) {
-        await processFolder(musicFile.path);
-      }
-
-    } catch (error) {
-      console.error('Error reading Music folder:', error);
-    }
-  };
-
-  getMusic();
 };
