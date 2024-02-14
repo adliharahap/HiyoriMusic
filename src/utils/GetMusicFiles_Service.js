@@ -17,7 +17,7 @@ export const GetMusicFiles = () => {
       }
       console.log('Finished processing music files');
     } catch (error) {
-      console.error('Error reading Music folder:', error);
+      console.log('Error reading Music folder:', error);
     }
   };
   getMusic();

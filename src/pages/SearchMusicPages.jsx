@@ -1,6 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import React from 'react';
-import Navbar from '../components/Navbar';
 import { Svg, Path } from 'react-native-svg';
 import HistoryList from '../components/HistoryList';
 
@@ -45,7 +44,6 @@ const SearchMusicPages = () => {
                     </View>
                 </View>
             </View>
-            <Navbar />
         </>
     );
 };  

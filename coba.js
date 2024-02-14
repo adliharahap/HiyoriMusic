@@ -52,14 +52,14 @@ const deleteAllData = () => {
 
     db.transaction((tx) => {
       tx.executeSql(
-        `SELECT ID FROM MusicMetadata;`,
+        `SELECT FileDate FROM MusicMetadata;`,
         [],
         (_, result) => {
           const rows = result.rows;
           if (rows.length > 0) {
             for (let i = 0; i < rows.length; i++) {
-              const id = rows.item(i).ID;
-              console.log('ID:', id);
+              const id = rows.item(i).FileDate;
+              console.log('FileDate: ', id);
             }
           } else {
             console.log('No data found in the table');

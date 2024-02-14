@@ -1,6 +1,5 @@
 import { View, Text, TextInput, ScrollView } from 'react-native'
 import React from 'react'
-import Navbar from '../components/Navbar';
 import { Svg, Path } from 'react-native-svg';
 import PlaylistList from '../components/MusicComponent/PlaylistList';
 
@@ -49,7 +48,6 @@ const PlaylistPages = () => {
                     </View>
                 </ScrollView>
             </View>
-            <Navbar />
         </>
     );
 };

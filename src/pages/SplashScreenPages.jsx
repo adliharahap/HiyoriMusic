@@ -56,7 +56,7 @@ const SplashScreenPages = () => {
 
                     if (mappingFinished) {
                         setTimeout(() => {
-                            navigation.replace('Home');
+                            navigation.replace('MainScreen');
                         }, 1500);
                     }
                 } catch (error) {

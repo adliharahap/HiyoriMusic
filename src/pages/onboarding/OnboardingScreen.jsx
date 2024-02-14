@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, Dimensions, TouchableOpacity, StatusBar } from 'react-native';
 import Carousel from 'react-native-reanimated-carousel';
 import { check ,request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Notification from './Notification';
 
-const OnboardingScreen = () => {    
+
+const OnboardingScreen = () => {
+    
     const OnboardingData = [
         {
             title: "Selamat Datang!",
@@ -104,10 +106,23 @@ const OnboardingComponent = (props) => {
         }
     };
 
+    async function fetchData() {
+        await checkUserName();
+        await checkStoragePermission();
+        console.log('Screen re-rendered');
+    }
+
     useEffect(() => {
-        checkUserName();
-        checkStoragePermission();
+        fetchData();
     }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            fetchData();
+            // Lakukan aksi render ulang layar atau operasi lainnya di sini
+                console.log('Screen is focused, perform rerender or other actions');
+        }, [])
+    );
 
     const checkStoragePermission = async () => {
         try {
@@ -198,7 +213,7 @@ const OnboardingComponent = (props) => {
                 }
             }
         } catch (error) {
-            console.error('Error checking name and file access:', error);
+            console.log('Error checking name and file access:', error);
         }
     };
 
@@ -229,7 +244,7 @@ const OnboardingComponent = (props) => {
                         } else {
                             console.log("this app only support for android");
                         }
-                    }} style={{height: 60, width: 170,backgroundColor: IzinFileComplete, justifyContent: 'center', alignItems: 'center', borderRadius: 100, display: title === TampilkanButtonIzinFile ? 'flex' : 'none'}}>
+                    }} style={{height: 60, width: 170, backgroundColor: IzinFileComplete, justifyContent: 'center', alignItems: 'center', borderRadius: 100, display: title === TampilkanButtonIzinFile ? 'flex' : 'none'}}>
                     <Text style={{color: 'white', fontFamily: 'Poppins-SemiBold', fontSize: 16, textAlign: 'center'}}>{IzinBtnUpdateName}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={CheckNameandFileAkses} style={{height: 60, width: 170, backgroundColor: '#001B79', justifyContent: 'center', alignItems: 'center', borderRadius: 100, display: title === TampilkanButtonGetStarted ? 'flex' : 'none'}}>

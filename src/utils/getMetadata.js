@@ -7,7 +7,7 @@ const converttoMB = require('./ConvertMusicSize');
 
 const getMetadata = async (path) => {
   try {
-    const defaultImageUri = "require('../img/Albums/defaultmusicthumnail.jpg')";
+    const defaultImageUri = "null";
     const stat = await RNFS.stat(path);
 
     const tags = await new Promise((resolve) => {

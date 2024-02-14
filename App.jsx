@@ -10,25 +10,23 @@ import OnboardingScreen from './src/pages/onboarding/OnboardingScreen';
 import NameInputScreen from './src/pages/onboarding/NameInputScreen';
 import FIleAksesDenied from './src/pages/FileAksesDenied/FIleAksesDenied';
 import FileAksesBlocked from './src/pages/FileAksesDenied/FileAksesBlocked';
-// import Test_metadata from './src/utils/getMetadata';
 import HomePages from './src/pages/HomePages';
 import AudioPlayer from './src/pages/code-playmusic';
+import Navbar from './src/components/Navbar';
 
 const Stack = createNativeStackNavigator();
 
 const routing = () => {
+
     return (
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{headerShown: false, animation: "none"}} initialRouteName='SplashScreen'>
+            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='SplashScreen'>
                 <Stack.Screen name='SplashScreen' component={SplashScreenPages} />
                 <Stack.Screen name='Onboarding' component={OnboardingScreen} />
                 <Stack.Screen name='AksesDenied' component={FIleAksesDenied} />
                 <Stack.Screen name='AksesBLocked' component={FileAksesBlocked} />
                 <Stack.Screen name='InputName' component={NameInputScreen} />
-                <Stack.Screen name='Home' component={HomePages} />
-                <Stack.Screen name='Music' component={MusicPages} />
-                <Stack.Screen name='SearchMusic' component={SearchMusicPages} />
-                <Stack.Screen name='Playlist' component={PlaylistPages} />
+                <Stack.Screen name='MainScreen' component={Navbar} />
                 <Stack.Screen name="Wallpaperpages" component={Wallpaperpages} />
                 <Stack.Screen name="testmu" component={AudioPlayer} />
             </Stack.Navigator>

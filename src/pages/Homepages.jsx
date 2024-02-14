@@ -3,7 +3,6 @@ import {ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, Vi
 import LinearGradient from 'react-native-linear-gradient';
 import FavoriteMusicCard from "../components/Favorite-music-card";
 import Svg, { Path } from 'react-native-svg';
-import Navbar from "../components/Navbar";
 
 const HomePages = ( {navigation}) => {
     const [namaWaktu, setNamaWaktu] = useState('');
@@ -136,7 +135,6 @@ const HomePages = ( {navigation}) => {
                 </View>
             </View>
         </ScrollView>
-        <Navbar />
         </>
     );
 }

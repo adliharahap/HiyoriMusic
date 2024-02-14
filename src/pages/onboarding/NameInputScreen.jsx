@@ -33,6 +33,7 @@ const NameInputScreen = () => {
             console.log("nama user berhasil di simpan");
             
             setTimeout(() => {
+                // navigation.replace('Onboarding');
                 navigation.goBack();
             }, 1000);
         } catch (error) {

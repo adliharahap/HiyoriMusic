@@ -7,7 +7,9 @@ module.exports = {
     dependencies: {
         "react-native-sqlite-storage": {
             platforms: {
-                ios: {},
+                ios: {
+                    // project: './platforms/ios/SQLite.xcodeproj'
+                },
                 android: {
                     sourceDir:
                     "../node_modules/react-native-sqlite-storage/platforms/android-native",

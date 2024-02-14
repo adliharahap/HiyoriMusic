@@ -1,23 +1,26 @@
-import React, {useState, useEffect} from 'react'
-import { View, Text, ScrollView, StatusBar, Image, TouchableOpacity, TouchableWithoutFeedback} from 'react-native';
-import Navbar from '../components/Navbar';
+import React, {useState, useEffect, useRef} from 'react'
+import { View, Text, ScrollView, StatusBar, Image, TouchableOpacity, Animated, StyleSheet} from 'react-native';
 import { Svg, Path} from 'react-native-svg';
 import MusicList from '../components/MusicComponent/MusicList';
 import LinearGradient from 'react-native-linear-gradient';
 import { db } from '../utils/databases/database';
 import Modal from "react-native-modal";
+import deleteAllData from '../../coba';
 
 const MusicPages = () => {
     const [ModalVisibel, setModalVisibel] = useState(false);
     const [musicData, setMusicData] = useState([]);
     const [startIndex, setStartIndex] = useState(0);
+    const [isFloatBtnHidden, setBtnHidden] = useState(false);
+    const slideAnim = useRef(new Animated.Value(0)).current;
+    const scrollViewRef = useRef();
 
     const toggleModal = () => {
         setModalVisibel(!ModalVisibel);
         
     };
 
-    const getMusicData = async () => {
+    const getMusicData = async (sortBy) => {
         setStartIndex(0);
         // Ambil data dari database dan set ke state musicData
         db.transaction((tx) => {
@@ -33,7 +36,7 @@ const MusicPages = () => {
                             index: startIndex + i,
                         });
                     }
-                    const sortedData = sortData(data);
+                    const sortedData = sortData(data, sortBy);
                     setMusicData(sortedData);
                     setStartIndex((prevIndex) => prevIndex + rows.length);
                 },
@@ -44,18 +47,96 @@ const MusicPages = () => {
         });
     }
 
-    const sortData = (data) => {
-        return data.sort((a, b) => a.Title.localeCompare(b.Title));
+    const sortData = (data, sortBy) => {
+        const dateParser = (dateString) => {
+            const [day, month, year, time] = dateString.split(/[\/\s:.]/);
+            return new Date(`${year}-${month}-${day} ${time}`);
+        };
+
+        switch (sortBy) {
+            case 'title':
+                return data.sort((a, b) => a.Title.localeCompare(b.Title));
+            case 'artist':
+                return data.sort((a, b) => a.Artist.localeCompare(b.Artist));
+            case 'album':
+                return data.sort((a, b) => a.Album.localeCompare(b.Album));
+            case 'year':
+                return data.sort((a, b) => dateParser(b.FileDate) - dateParser(a.FileDate));
+            default:
+                // Jika sortBy tidak sesuai dengan pilihan yang valid, kembalikan data tanpa pengurutan.
+                return data;
+        }
     }
 
     useEffect(() => {
-        getMusicData();
+        getMusicData('year');
     }, []);
+
+    const handleAutoTop = () => {
+        if (scrollViewRef.current) {
+            scrollViewRef.current.scrollTo({ y: 0, animated: true });
+        }
+    };
+
+    const handleScrollFltBTN = (event) => {
+        const { y } = event.nativeEvent.contentOffset;
+        
+        // Jika posisi scroll mencapai y = 0, sembunyikan komponen
+        if (y <= 150) {
+            hideButton();
+        } else {
+            showButton();
+        }
+    };
+
+    const showButton = () => {
+        if (isFloatBtnHidden) {
+            Animated.timing(slideAnim, {
+                toValue: 0,
+                duration: 500,
+                useNativeDriver: true,
+            }).start();
+        
+            setBtnHidden(false);
+        }
+    };
+    
+    const hideButton = () => {
+        if (!isFloatBtnHidden) {
+            Animated.timing(slideAnim, {  
+                toValue: 100,
+                duration: 500,
+                useNativeDriver: true,
+            }).start();
+    
+            setBtnHidden(true);
+        }
+    };
+    
+    const slideStyle = {
+        transform: [
+            {
+                translateX: slideAnim.interpolate({
+                    inputRange: [0, 500],
+                    outputRange: [0, 500],
+                }),
+            },
+        ],
+    };
 
     return (
         <>
-            <ScrollView style={{backgroundColor: 'rgba(15, 15, 15, 1)', flex: 1}} showsVerticalScrollIndicator={false}>
-                <StatusBar translucent={true} backgroundColor="transparent" />
+            {!isFloatBtnHidden && (
+                <Animated.View style={[style.floatingButton, slideStyle]}>
+                    <TouchableOpacity onPress={handleAutoTop} style={{flex: 1}}>
+                        <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" style={{transform: [{rotate: '-90deg'}]}} height="24" viewBox="0 -960 960 960" width="24" fill={"white"}><Path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></Svg>
+                        </View>
+                    </TouchableOpacity>
+                </Animated.View>
+            )}
+            <ScrollView ref={scrollViewRef} onScroll={handleScrollFltBTN} scrollEventThrottle={16} style={{backgroundColor: 'rgba(15, 15, 15, 1)', flex: 1}} showsVerticalScrollIndicator={false}>
+                <StatusBar translucent={true} backgroundColor={"transparent"} />
                 <LinearGradient colors={['rgba(131, 0, 0, 1)', 'rgba(15, 15, 15, 1)']} locations={[0, 0.6]} style={{height: 330, position: 'absolute', top: 0, width: '100%'}}></LinearGradient>
                 <View>
                     <View style={{height: 120, paddingHorizontal: 10}}>
@@ -115,8 +196,8 @@ const MusicPages = () => {
                 onBackButtonPress={toggleModal}
                 transparent={true}
             >
-                <View style={{flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
-                    <View style={{width: '100%', height: '50%', backgroundColor: '#262626', borderTopLeftRadius: 15, borderTopRightRadius: 15}}>
+                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{width: '80%', height: '50%', backgroundColor: 'rgba(20,20,30,1)', borderRadius: 15}}>
                         <View style={{flex: 1}}>
                             <View style={{height: 60, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 15, borderBottomColor: '#848484', borderBottomWidth: 1.5}}>
                                 <View>
@@ -129,8 +210,8 @@ const MusicPages = () => {
                                 </View>
                             </View>
                             <View style={{flex: 1, paddingVertical: 20}}>
-                                <SortirMusiclist title="Judul" focus="true" />
-                                <SortirMusiclist title="Artist" />
+                                <SortirMusiclist title="Judul"  />
+                                <SortirMusiclist title="Artist" focus="true" />
                                 <SortirMusiclist title="Album" />
                                 <SortirMusiclist title="Tahun Ditambahkan" />
                             </View>
@@ -138,7 +219,6 @@ const MusicPages = () => {
                     </View>
                 </View>
             </Modal>
-            <Navbar />
         </>
     );
 };
@@ -150,9 +230,22 @@ const SortirMusiclist = (props) => {
 
     return (
         <View style={{ height: 70, width: '100%', paddingHorizontal: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: focusdata ? 'rgba(255,255,255,0.3)' : 'transparent'}}>
-            <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 20, color: '#ffffff'}}>{title}</Text>
+            <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#ffffff'}}>{title}</Text>
         </View>
     );
-}
+};
+
+const style = StyleSheet.create({
+    floatingButton: {
+        position: 'absolute',
+        height: 40,
+        width: 40,
+        backgroundColor: '#3c1361',
+        borderRadius: 50,
+        bottom: 100,
+        right: 50,
+        zIndex: 999,
+    },
+});
 
 export default MusicPages;
