@@ -4,6 +4,7 @@ import Svg, { Path, G } from 'react-native-svg';
 
 const HomeMusicCard = (props) => {
     const {coba} = props;
+    
     return (
         <View style={{width: '100%', height: 180, backgroundColor: 'rgba(15, 15, 15, 0.6)', borderRadius: 10, display: 'flex', flexDirection: 'row', overflow: 'hidden'}}>
             <View style={{height: '100%', width: 100, display: 'flex', justifyContent: 'center'}}>

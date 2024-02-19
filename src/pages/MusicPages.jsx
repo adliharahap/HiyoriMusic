@@ -1,24 +1,46 @@
 import React, {useState, useEffect, useRef} from 'react'
-import { View, Text, ScrollView, StatusBar, Image, TouchableOpacity, Animated, StyleSheet} from 'react-native';
+import { View, Text, ScrollView, StatusBar, Image, TouchableOpacity, Animated, StyleSheet, TouchableWithoutFeedback, FlatList} from 'react-native';
 import { Svg, Path} from 'react-native-svg';
 import MusicList from '../components/MusicComponent/MusicList';
 import LinearGradient from 'react-native-linear-gradient';
 import { db } from '../utils/databases/database';
 import Modal from "react-native-modal";
-import deleteAllData from '../../coba';
+import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const MusicPages = () => {
+    const navigation = useNavigation();
     const [ModalVisibel, setModalVisibel] = useState(false);
     const [musicData, setMusicData] = useState([]);
     const [startIndex, setStartIndex] = useState(0);
     const [isFloatBtnHidden, setBtnHidden] = useState(false);
+    const [sortirList, setSortirList] = useState("title");
     const slideAnim = useRef(new Animated.Value(0)).current;
     const scrollViewRef = useRef();
 
+    // usestate focusbutton di sortir music option
+    const [autotophide, setautotophide] = useState(0);
+    const [judulfocus, setjudulfocus] = useState("true");
+    const [artistfocus, setartistfocus] = useState("");
+    const [albumfocus, setalbumfocus] = useState("");
+    const [ondatefocus, setondatefocus] = useState("");
+
     const toggleModal = () => {
         setModalVisibel(!ModalVisibel);
-        
     };
+
+    const storeDataToAsyncStorage = async (data) => {
+        try {
+            // Konversi data ke bentuk string jika diperlukan
+            const jsonData = JSON.stringify(data);
+            // Simpan data ke AsyncStorage dengan kunci tertentu
+            await AsyncStorage.setItem('AllListMusic', jsonData);
+            console.log('Data successfully stored in AsyncStorage');
+        } catch (error) {
+            console.error('Error storing data in AsyncStorage: ', error);
+        }
+    };
+
 
     const getMusicData = async (sortBy) => {
         setStartIndex(0);
@@ -47,11 +69,9 @@ const MusicPages = () => {
         });
     }
 
+    storeDataToAsyncStorage(musicData);
+
     const sortData = (data, sortBy) => {
-        const dateParser = (dateString) => {
-            const [day, month, year, time] = dateString.split(/[\/\s:.]/);
-            return new Date(`${year}-${month}-${day} ${time}`);
-        };
 
         switch (sortBy) {
             case 'title':
@@ -60,17 +80,50 @@ const MusicPages = () => {
                 return data.sort((a, b) => a.Artist.localeCompare(b.Artist));
             case 'album':
                 return data.sort((a, b) => a.Album.localeCompare(b.Album));
-            case 'year':
-                return data.sort((a, b) => dateParser(b.FileDate) - dateParser(a.FileDate));
+            case 'ondate':
+                return data.sort((a, b) => a.FileDate.localeCompare(b.FileDate));
             default:
                 // Jika sortBy tidak sesuai dengan pilihan yang valid, kembalikan data tanpa pengurutan.
                 return data;
         }
     }
 
+    const changeSortirList = (sortir) => {
+        let sortirListValue = "";
+        let focusValues = { judul: "", artist: "", album: "", ondate: "" };
+
+        switch (sortir) {
+            case "Judul":
+                sortirListValue = "title";
+                focusValues.judul = "true";
+            break;
+            case "Artist":
+                sortirListValue = "artist";
+                focusValues.artist = "true";
+            break;
+            case "Album":
+                sortirListValue = "album";
+                focusValues.album = "true";
+            break;
+            default:
+                sortirListValue = "ondate";
+                focusValues.ondate = "true";
+        }
+
+        setSortirList(sortirListValue);
+        setTimeout(() => {
+            toggleModal();
+        }, 500);
+
+        setjudulfocus(focusValues.judul);
+        setartistfocus(focusValues.artist);
+        setalbumfocus(focusValues.album);
+        setondatefocus(focusValues.ondate);
+    }
+
     useEffect(() => {
-        getMusicData('year');
-    }, []);
+        getMusicData(sortirList);
+    }, [sortirList]);
 
     const handleAutoTop = () => {
         if (scrollViewRef.current) {
@@ -80,7 +133,7 @@ const MusicPages = () => {
 
     const handleScrollFltBTN = (event) => {
         const { y } = event.nativeEvent.contentOffset;
-        
+        setautotophide(1);
         // Jika posisi scroll mencapai y = 0, sembunyikan komponen
         if (y <= 150) {
             hideButton();
@@ -124,17 +177,48 @@ const MusicPages = () => {
         ],
     };
 
+    const style = StyleSheet.create({
+        floatingButton: {
+            position: 'absolute',
+            height: 40,
+            width: 40,
+            backgroundColor: 'rgba(60, 19, 97,0.8)',
+            borderRadius: 50,
+            bottom: 100,
+            right: 50,
+            zIndex: 999,
+            opacity: autotophide,
+        },
+    });
+
+    const renderItem = ({ item }) => (
+        <TouchableOpacity onPress={() => console.log(navigation.navigate('Musicplay'))}>
+            <MusicList
+                id={item.ID}
+                img={item.ThumnailData} 
+                title={item.Title} 
+                artist={item.Artist} 
+                album={item.Album} 
+                duration={item.Duration} 
+                path={item.Uri} 
+                favorite={item.Favorite} 
+                filedate={item.FileDate} 
+                filesize={item.FileSize} 
+            />
+        </TouchableOpacity>
+    );
+
+    const keyExtractor = (item) => String(item.index);
+
     return (
         <>
-            {!isFloatBtnHidden && (
-                <Animated.View style={[style.floatingButton, slideStyle]}>
-                    <TouchableOpacity onPress={handleAutoTop} style={{flex: 1}}>
-                        <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
-                            <Svg xmlns="http://www.w3.org/2000/svg" style={{transform: [{rotate: '-90deg'}]}} height="24" viewBox="0 -960 960 960" width="24" fill={"white"}><Path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></Svg>
-                        </View>
-                    </TouchableOpacity>
-                </Animated.View>
-            )}
+            <Animated.View style={[style.floatingButton, slideStyle]}>
+                <TouchableOpacity onPress={handleAutoTop} style={{flex: 1}}>
+                    <View style={{flex:1, justifyContent: 'center', alignItems: 'center'}}>
+                        <Svg xmlns="http://www.w3.org/2000/svg" style={{transform: [{rotate: '-90deg'}]}} height="24" viewBox="0 -960 960 960" width="24" fill={"white"}><Path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></Svg>
+                    </View>
+                </TouchableOpacity>
+            </Animated.View>
             <ScrollView ref={scrollViewRef} onScroll={handleScrollFltBTN} scrollEventThrottle={16} style={{backgroundColor: 'rgba(15, 15, 15, 1)', flex: 1}} showsVerticalScrollIndicator={false}>
                 <StatusBar translucent={true} backgroundColor={"transparent"} />
                 <LinearGradient colors={['rgba(131, 0, 0, 1)', 'rgba(15, 15, 15, 1)']} locations={[0, 0.6]} style={{height: 330, position: 'absolute', top: 0, width: '100%'}}></LinearGradient>
@@ -145,12 +229,12 @@ const MusicPages = () => {
                                 <Text style={{fontFamily: 'Poppins-Bold', fontSize: 36, color: 'rgb(255,255,255)'}}>All Music</Text>
                             </View>
                             <View style={{flex: 1, flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', height: 50}}>
-                                <View style={{marginRight: 20}}>
+                                <TouchableOpacity onPress={() => navigation.navigate('Search')} style={{marginRight: 20}}>
                                     <Svg height="30" viewBox="0 -960 960 960" width="30" fill="white" style={{marginLeft: 10}}><Path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z"/></Svg>
-                                </View>
-                                <View>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => {console.log("aoa wak");}}>
                                     <Svg height="30" viewBox="0 -960 960 960" width="30" fill="white"><Path d="M480-160q-33 0-56.5-23.5T400-240q0-33 23.5-56.5T480-320q33 0 56.5 23.5T560-240q0 33-23.5 56.5T480-160Zm0-240q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm0-240q-33 0-56.5-23.5T400-720q0-33 23.5-56.5T480-800q33 0 56.5 23.5T560-720q0 33-23.5 56.5T480-640Z"/></Svg>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
@@ -168,25 +252,16 @@ const MusicPages = () => {
                     </View>
                 </View>
                 <View style={{flex: 1, minHeight: 500, paddingBottom: 50}}>
-                    {musicData.map((musicInfo, index) => (
-                        <TouchableOpacity key={index} onPress={() => {console.log("kont", index);}}>
-                            <MusicList
-                            id={musicInfo.ID}
-                            img={musicInfo.ThumnailData} 
-                            title={musicInfo.Title} 
-                            artist={musicInfo.Artist} 
-                            duration={musicInfo.Duration} 
-                            path={musicInfo.Uri} 
-                            favorite={musicInfo.Favorite} 
-                            filedate={musicInfo.FileDate} 
-                            filesize={musicInfo.FileSize} 
-                            />
-                        </TouchableOpacity>
-                    ))}
+                    <FlatList
+                        scrollEnabled={false}
+                        data={musicData}
+                        renderItem={renderItem}
+                        keyExtractor={keyExtractor}
+                    />
                 </View>
             </ScrollView>
             <Modal 
-                style={{ margin: 0, padding: 0 }}
+                style={{ margin: 0, padding: 0, zIndex:999 }}
                 animationIn="slideInUp"
                 animationOut="slideOutDown"
                 animationInTiming={300}
@@ -205,15 +280,15 @@ const MusicPages = () => {
                                 </View>
                                 <View>
                                     <TouchableOpacity onPress={toggleModal}>
-                                    <Svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><Path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></Svg>
+                                        <Svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24" fill="white"><Path d="m256-200-56-56 224-224-224-224 56-56 224 224 224-224 56 56-224 224 224 224-56 56-224-224-224 224Z"/></Svg>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                             <View style={{flex: 1, paddingVertical: 20}}>
-                                <SortirMusiclist title="Judul"  />
-                                <SortirMusiclist title="Artist" focus="true" />
-                                <SortirMusiclist title="Album" />
-                                <SortirMusiclist title="Tahun Ditambahkan" />
+                                <SortirMusiclist expfunction={changeSortirList} title="Judul" focus = {judulfocus} />
+                                <SortirMusiclist expfunction={changeSortirList} title="Artist" focus ={artistfocus} />
+                                <SortirMusiclist expfunction={changeSortirList} title="Album"  focus = {albumfocus} />
+                                <SortirMusiclist expfunction={changeSortirList} title="Tahun Ditambahkan" focus = {ondatefocus} />
                             </View>
                         </View>
                     </View>
@@ -224,28 +299,17 @@ const MusicPages = () => {
 };
 
 const SortirMusiclist = (props) => {
-    const {title, focus = false} = props
+    const {title, expfunction , focus = false} = props
 
     let focusdata = focus;
 
     return (
-        <View style={{ height: 70, width: '100%', paddingHorizontal: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: focusdata ? 'rgba(255,255,255,0.3)' : 'transparent'}}>
-            <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#ffffff'}}>{title}</Text>
-        </View>
+        <TouchableWithoutFeedback onPress={() => {expfunction(title)}}>
+            <View style={{ height: 70, width: '100%', paddingHorizontal: 50, justifyContent: 'center', alignItems: 'center', backgroundColor: focusdata ? 'rgba(255,255,255,0.3)' : 'transparent'}}>
+                <Text style={{fontFamily: 'Poppins-SemiBold', fontSize: 16, color: '#ffffff'}}>{title}</Text>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
-
-const style = StyleSheet.create({
-    floatingButton: {
-        position: 'absolute',
-        height: 40,
-        width: 40,
-        backgroundColor: '#3c1361',
-        borderRadius: 50,
-        bottom: 100,
-        right: 50,
-        zIndex: 999,
-    },
-});
 
 export default MusicPages;

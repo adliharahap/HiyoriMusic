@@ -7,7 +7,7 @@ import { GetMusicFiles } from '../utils/GetMusicFiles_Service';
 import CheckMetadataMusicDb from '../utils/CheckMetadataMusiDb';
 import cleanUpDatabaseIfMusicDoesntExits from '../utils/cleanUpDatabaseIfMusicDoesntExits';
 import { openDatabaseConnection } from '../utils/databases/database';
-import deleteAllData from '../../coba';
+
 
 const SplashScreenPages = () => {
     const navigation = useNavigation();
@@ -47,7 +47,7 @@ const SplashScreenPages = () => {
                     const getData = await AsyncStorage.getItem('musicData');
                     const data = JSON.parse(getData);
                     const keys = Object.keys(data);
-                    // console.log(keys);
+                    // console.log(data);
                     await Promise.all(keys.map(async (path, index) => {
                         await CheckMetadataMusicDb(path);
                         // console.log(index);

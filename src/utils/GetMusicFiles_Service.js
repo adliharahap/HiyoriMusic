@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 export const GetMusicFiles = () => {
   const EksternalStorage = RNFS.ExternalStorageDirectoryPath;
 
-  const ignoredFolders = ['Android', 'WhatsApp', 'shopeeID', '.mcs', '.sstmp', '.ext4','.datatmp','.804c9a5b09dc1e99aefe17dd530290c3']; // Tambahkan folder yang ingin diabaikan
+  const ignoredFolders = ['Android', 'WhatsApp Images','WhatsApp Documents','WhatsApp Stickers','WhatsApp Video','WhatsApp Video Notes','WhatsApp Voice Notes','WhatsApp Animated Gifs', 'shopeeID', '.mcs', '.sstmp', '.ext4','.datatmp','.804c9a5b09dc1e99aefe17dd530290c3']; // Tambahkan folder yang ingin diabaikan
   const musicData = {};
 
   const getMusic = async () => {
