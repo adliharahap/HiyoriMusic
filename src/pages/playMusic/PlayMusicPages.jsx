@@ -1,4 +1,4 @@
-import {Text, View, StatusBar, Image, TouchableOpacity} from 'react-native'
+import {Text, View, StatusBar, Image, TouchableOpacity, LogBox, TouchableWithoutFeedback} from 'react-native'
 import React, {useEffect, useState, useRef} from 'react'
 import { Svg, Path} from 'react-native-svg'
 import TextTicker from 'react-native-text-ticker';
@@ -6,22 +6,25 @@ import {Slider} from '@miblanchard/react-native-slider';
 import TrackPlayer, { useProgress, useTrackPlayerEvents, Event} from 'react-native-track-player';
 import MusicControl, { Command } from 'react-native-music-control';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRoute, useNavigation } from '@react-navigation/native';
 
 const PlayMusicPages = () => {
     const [position, setPosition] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [MusicData, setMusicData] = useState(null);
     const [currentTrack, setCurrentTrack] = useState(null);
-    const [secondmusic, setsecondmusic] = useState(0);
-    const [Playlist, setPlaylist] = useState([]);
     const progress = useProgress();
+
+    const route = useRoute();
+    const receivedMusicId = route.params?.MusicId;
+    LogBox.ignoreLogs(['ReactImageView: Image source "null" doesn\'t exist']);
 
     useEffect(() => {
         const loadPlaylist = async () => {
             try {
                 // Ambil data dari asynchronous storage
                 const storedData = await AsyncStorage.getItem('AllListMusic');
-                
+                await TrackPlayer.setupPlayer({});
+
                 if (storedData) {
                     // Parse data dari JSON
                     const parsedData = JSON.parse(storedData);
@@ -37,7 +40,7 @@ const PlayMusicPages = () => {
                         const defaultImgMusic = "data:image/png;base64,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";
             
                         return {
-                        id: item.ID.toString(),
+                        id: item.ID,
                         url: item.Uri,
                         title: item.Title,
                         artist: item.Artist,
@@ -48,99 +51,25 @@ const PlayMusicPages = () => {
                         };
                     });
                     
-                    await TrackPlayer.setupPlayer();
                     await TrackPlayer.add(newPlaylist);
+
+                    if (receivedMusicId === undefined) {
+                        console.log("MusicId tidak ditemukan.");
+                    } else {
+                        await TrackPlayer.skip(receivedMusicId);
+                        await TrackPlayer.play();
+                        MusicControl.updatePlayback({
+                            state: MusicControl.STATE_PLAYING,
+                        });
+                        setIsPlaying(true);
+                    }
                 }
             } catch (error) {
-                console.log('Error loading playlist:', error);
             }
         };
     
         // Panggil fungsi loadPlaylist
         loadPlaylist();
-    }, []);
-    
-
-    const updateTrackInfo = async () => {
-        // const duration = Math.round(progress.duration);
-
-        const trackId = await TrackPlayer.getCurrentTrack();
-        const trackObject = await TrackPlayer.getTrack(trackId);
-
-        // Dapatkan informasi yang Anda butuhkan dari objek lagu (judul, artis, dll.)
-        const { title, artist, duration, artwork} = trackObject;
-
-        // Perbarui state komponen dengan informasi lagu yang sedang diputar
-        setCurrentTrack({ title, artist, artwork});
-        // setsecondmusic(duration);
-
-        showNotification(title, artist, duration);
-    };
-
-    const showNotification = (title, artist, duration, artwork) => {
-
-        MusicControl.setNowPlaying({
-            title: title,
-            artwork: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSanKq6cEi0y8XDI4_H3nsZdtFKI-jPa7zH-g&usqp=CAU',
-            artist: artist,
-            album: 'Thriller',
-            duration: duration,
-            // artwork: artwork,
-        });
-    };
-
-    const formatTime = (seconds) => {
-        const roundedSeconds = Math.round(seconds); // Memastikan nilai detik sudah dibulatkan
-        const minutes = Math.floor(roundedSeconds / 60);
-        const remainingSeconds = roundedSeconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-    };
-
-    // const playlist = [
-    //     {
-    //         url: '/storage/emulated/0/Music/HYBS - Tip Toe (speed up).mp3',
-    //         title: 'Keenan te faults maybe',
-    //         artist: 'Artist 1',
-    //     },
-    //     {
-    //         url: '/storage/emulated/0/Music/King Promise - Terminator (Lyrics).mp3',
-    //         title: 'Terminator',
-    //         artist: 'Artist 2',
-    //     },
-    //     // Tambahkan lagu-lagu lainnya...
-    // ];
-
-    useEffect(() => {
-
-        const setup = async () => {
-            // Inisialisasi TrackPlayer dan tambahkan lagu-lagu
-
-            const trackIndex = await TrackPlayer.getCurrentTrack();
-            console.log(`Track index : ${trackIndex}`);
-
-            // Periksa apakah ada pemutaran aktif (dalam kondisi PLAYING)
-            const currentPlaybackState = await TrackPlayer.getState();
-            if (currentPlaybackState === TrackPlayer.STATE_PLAYING) {
-                setIsPlaying(true);
-                // Perbarui ikon di notifikasi saat pemutaran aktif
-                MusicControl.updatePlayback({
-                    state: MusicControl.STATE_PLAYING,
-                });
-                await updateTrackInfo();
-            } else {
-                // Jika tidak ada pemutaran aktif, mulai pemutaran
-                await TrackPlayer.play();
-                setIsPlaying(true);
-                // Perbarui ikon di notifikasi saat pemutaran dimulai
-                MusicControl.updatePlayback({
-                    state: MusicControl.STATE_PLAYING,
-                });
-                await updateTrackInfo();
-            }
-
-        };
-    
-        setup();
     
         // Event handler untuk tombol play di notifikasi
         MusicControl.on(Command.play, async () => {
@@ -185,6 +114,68 @@ const PlayMusicPages = () => {
           // ... (event handler lainnya)
 
     }, []);
+
+    useEffect(() => {
+        const skipMusic = async () => {
+
+            if (receivedMusicId === undefined) {
+
+            }else {
+                await TrackPlayer.skip(receivedMusicId);
+                await TrackPlayer.play();
+                MusicControl.updatePlayback({
+                    state: MusicControl.STATE_PLAYING,
+                });
+                setIsPlaying(true);
+            }
+
+            const playerState = await TrackPlayer.getState();
+            if (playerState === TrackPlayer.STATE_PLAYING) {
+                setIsPlaying(false);
+            } else {
+                setIsPlaying(true);
+            }
+        }
+
+        skipMusic();
+        updateTrackInfo();
+
+    }, [receivedMusicId])
+    
+
+    const updateTrackInfo = async () => {
+        // const duration = Math.round(progress.duration);
+
+        const trackId = await TrackPlayer.getCurrentTrack();
+        const trackObject = await TrackPlayer.getTrack(trackId);
+
+        // Dapatkan informasi yang Anda butuhkan dari objek lagu (judul, artis, dll.)
+        const { title, artist, duration, artwork} = trackObject;
+
+        // Perbarui state komponen dengan informasi lagu yang sedang diputar
+        setCurrentTrack({ title, artist, artwork});
+        // setsecondmusic(duration);
+
+        showNotification(title, artist, duration, artwork);
+    };
+
+    const showNotification = async (title, artist, duration, artwork) => {
+
+        MusicControl.setNowPlaying({
+            title: title,
+            artwork: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB63Matv0X_AbDKOFkcU8HNHK7AKGomXEGUQ&usqp=CAU',
+            artist: artist,
+            album: 'Thriller',
+            duration: duration,
+        });
+    };
+
+    const formatTime = (seconds) => {
+        const roundedSeconds = Math.round(seconds); // Memastikan nilai detik sudah dibulatkan
+        const minutes = Math.floor(roundedSeconds / 60);
+        const remainingSeconds = roundedSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+    };
 
     useEffect(() => {
         const updateNotificationPlayback = () => {
@@ -233,6 +224,8 @@ const PlayMusicPages = () => {
             state: MusicControl.STATE_PLAYING,
         });
         updateTrackInfo();
+        const trackIndex = await TrackPlayer.getCurrentTrack();
+        console.log(`Track index : ${trackIndex}`);
     };
 
     const handlePrevPress = async () => {
@@ -383,12 +376,16 @@ const PlayMusicPages = () => {
 };
 
 const HeaderMusic = () => {
+    const navigation = useNavigation();
+
     return (
         <View style={{height: 80, width: '100%'}}>
             <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
                 <View style={{flex: 1, alignItems: 'flex-start', justifyContent: 'flex-end'}}>
                     <View style={{paddingLeft: 20, paddingBottom: 3, justifyContent: 'center', alignItems: 'center'}}>
-                        <Svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="0 -960 960 960" width="36" fill="white" style={{transform: [{rotate: '90deg'}]}}><Path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></Svg>
+                        <TouchableWithoutFeedback onPress={() => {navigation.goBack()}}>
+                            <Svg xmlns="http://www.w3.org/2000/svg" height="36" viewBox="0 -960 960 960" width="36" fill="white" style={{transform: [{rotate: '90deg'}]}}><Path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></Svg>
+                        </TouchableWithoutFeedback>
                     </View>
                 </View>
                 <View style={{flex: 1, alignItems: 'center', justifyContent: 'flex-end'}}>

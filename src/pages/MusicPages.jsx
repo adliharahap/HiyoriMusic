@@ -37,10 +37,8 @@ const MusicPages = () => {
             await AsyncStorage.setItem('AllListMusic', jsonData);
             console.log('Data successfully stored in AsyncStorage');
         } catch (error) {
-            console.error('Error storing data in AsyncStorage: ', error);
         }
     };
-
 
     const getMusicData = async (sortBy) => {
         setStartIndex(0);
@@ -69,8 +67,6 @@ const MusicPages = () => {
         });
     }
 
-    storeDataToAsyncStorage(musicData);
-
     const sortData = (data, sortBy) => {
 
         switch (sortBy) {
@@ -87,6 +83,8 @@ const MusicPages = () => {
                 return data;
         }
     }
+
+    storeDataToAsyncStorage(musicData);
 
     const changeSortirList = (sortir) => {
         let sortirListValue = "";
@@ -184,17 +182,17 @@ const MusicPages = () => {
             width: 40,
             backgroundColor: 'rgba(60, 19, 97,0.8)',
             borderRadius: 50,
-            bottom: 100,
+            bottom: 120,
             right: 50,
             zIndex: 999,
             opacity: autotophide,
         },
     });
 
-    const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => console.log(navigation.navigate('Musicplay'))}>
+    const renderItem = ({ item, index }) => (
+        <TouchableOpacity onPress={() => {navigation.navigate('Musicplay', { MusicId: index})}}>
             <MusicList
-                id={item.ID}
+                id={index}
                 img={item.ThumnailData} 
                 title={item.Title} 
                 artist={item.Artist} 

@@ -16,7 +16,7 @@ const routing = () => {
 
     return (
         <NavigationContainer>
-            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='Musicplay'>
+            <Stack.Navigator screenOptions={{headerShown: false}} initialRouteName='SplashScreen'>
                 <Stack.Screen name='SplashScreen' component={SplashScreenPages} />
                 <Stack.Screen name='Onboarding' component={OnboardingScreen} />
                 <Stack.Screen name='AksesDenied' component={FIleAksesDenied} />
