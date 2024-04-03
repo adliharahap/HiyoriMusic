@@ -1,125 +1,69 @@
-import {Text, View, StatusBar, Image, TouchableOpacity, LogBox, TouchableWithoutFeedback} from 'react-native'
-import React, {useEffect, useState, useRef} from 'react'
+import {Text, View, StatusBar, Image, TouchableOpacity, LogBox, TouchableWithoutFeedback, ToastAndroid} from 'react-native'
+import React, {useEffect, useState} from 'react'
 import { Svg, Path} from 'react-native-svg'
 import TextTicker from 'react-native-text-ticker';
 import {Slider} from '@miblanchard/react-native-slider';
-import TrackPlayer, { useProgress, useTrackPlayerEvents, Event} from 'react-native-track-player';
+import TrackPlayer, { useProgress, useTrackPlayerEvents, Event, RepeatMode, State} from 'react-native-track-player';
 import MusicControl, { Command } from 'react-native-music-control';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import repeatImage from '../../icons/repeat1.png';
+import shuffleImage from '../../icons/shuffle.png';
+import berurutImage from '../../icons/berurut.png';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const PlayMusicPages = () => {
     const [position, setPosition] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTrack, setCurrentTrack] = useState(null);
     const progress = useProgress();
+    const [selectedOption, setSelectedOption] = useState(1);
+    const [selected, setselected] = useState(berurutImage);
+    const [shuffledIds, setShuffledIds] = useState([]);
+    const [totalIds, setTotalIds] = useState(0);
+    const [HasSliding, setHasSliding] = useState(false);
 
     const route = useRoute();
     const receivedMusicId = route.params?.MusicId;
     LogBox.ignoreLogs(['ReactImageView: Image source "null" doesn\'t exist']);
 
     useEffect(() => {
-        const loadPlaylist = async () => {
+        RenderselectedQueQue();
+        const RenderShuffle = async () => {
+            const getvalue = await AsyncStorage.getItem('QueQueSelected');
+            if (!getvalue) {
+                await AsyncStorage.setItem('QueQueSelected', '1');
+            }
+
             try {
-                // Ambil data dari asynchronous storage
-                const storedData = await AsyncStorage.getItem('AllListMusic');
-                await TrackPlayer.setupPlayer({});
+                const storedIndexes = await AsyncStorage.getItem('shuffledIndexes');
+                if (storedIndexes) {
+                    setShuffledIds(JSON.parse(storedIndexes));
 
-                if (storedData) {
-                    // Parse data dari JSON
-                    const parsedData = JSON.parse(storedData);
-            
-                    const newPlaylist = parsedData.map((item) => {
-                        // Fungsi untuk mengonversi format menit:detik menjadi detik
-                        const convertDurationToSeconds = (duration) => {
-                        const [minutes, seconds] = duration.split(":");
-                        return parseInt(minutes, 10) * 60 + parseInt(seconds, 10);
-                        };
-            
-                        // Fungsi untuk mendapatkan gambar default jika ThumnailData === null
-                        const defaultImgMusic = "data:image/png;base64,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";
-            
-                        return {
-                        id: item.ID,
-                        url: item.Uri,
-                        title: item.Title,
-                        artist: item.Artist,
-                        album: item.Album,
-                        artwork: item.ThumnailData === "null" ? defaultImgMusic : item.ThumnailData,
-                        duration: convertDurationToSeconds(item.Duration),
-                        // Tambahkan properti lain sesuai kebutuhan
-                        };
-                    });
-                    
-                    await TrackPlayer.add(newPlaylist);
-
-                    if (receivedMusicId === undefined) {
-                        console.log("MusicId tidak ditemukan.");
-                    } else {
-                        await TrackPlayer.skip(receivedMusicId);
-                        await TrackPlayer.play();
-                        MusicControl.updatePlayback({
-                            state: MusicControl.STATE_PLAYING,
-                        });
-                        setIsPlaying(true);
-                    }
+                }else {
+                    getAllTrackIds();
                 }
             } catch (error) {
+                console.log(error);
             }
-        };
-    
-        // Panggil fungsi loadPlaylist
-        loadPlaylist();
-    
-        // Event handler untuk tombol play di notifikasi
-        MusicControl.on(Command.play, async () => {
-            await TrackPlayer.play();
-            setIsPlaying(true);
-            // Perbarui ikon di notifikasi saat tombol play diklik
-            MusicControl.updatePlayback({
-                state: MusicControl.STATE_PLAYING,
-            });
-        });
-    
-        // Event handler untuk tombol pause di notifikasi
-        MusicControl.on(Command.pause, async () => {
-            await TrackPlayer.pause();
-            setIsPlaying(false);
-            // Perbarui ikon di notifikasi saat tombol pause diklik
-            MusicControl.updatePlayback({
-                state: MusicControl.STATE_PAUSED,
-            });
-        });
-
-        MusicControl.on(Command.nextTrack, async () => {
-            await TrackPlayer.skipToNext();
-            await TrackPlayer.play();
-            setIsPlaying(true);
-            MusicControl.updatePlayback({
-                state: MusicControl.STATE_PLAYING,
-            });
-            updateTrackInfo();
-        });
-    
-        // Handle event ketika tombol previous di notifikasi ditekan
-        MusicControl.on(Command.previousTrack, async () => {
-            await TrackPlayer.skipToPrevious();
-            await TrackPlayer.play();
-            setIsPlaying(true);
-            MusicControl.updatePlayback({
-                state: MusicControl.STATE_PLAYING,
-            });
-            updateTrackInfo();
-        });    
-          // ... (event handler lainnya)
-
+        }
+        RenderShuffle();
     }, []);
 
     useEffect(() => {
         const skipMusic = async () => {
-
-            if (receivedMusicId === undefined) {
-
+            if (receivedMusicId == 999999) {
+                const state = await TrackPlayer.getState();
+                if (state === State.Playing) {
+                    MusicControl.updatePlayback({
+                        state: MusicControl.STATE_PLAYING,
+                    });
+                    setIsPlaying(true);
+                }else if(state === State.Paused) {
+                    MusicControl.updatePlayback({
+                        state: MusicControl.STATE_PAUSED,
+                    });
+                    setIsPlaying(false);
+                }
             }else {
                 await TrackPlayer.skip(receivedMusicId);
                 await TrackPlayer.play();
@@ -128,19 +72,11 @@ const PlayMusicPages = () => {
                 });
                 setIsPlaying(true);
             }
-
-            const playerState = await TrackPlayer.getState();
-            if (playerState === TrackPlayer.STATE_PLAYING) {
-                setIsPlaying(false);
-            } else {
-                setIsPlaying(true);
-            }
         }
 
         skipMusic();
         updateTrackInfo();
-
-    }, [receivedMusicId])
+    }, []);
     
 
     const updateTrackInfo = async () => {
@@ -155,7 +91,6 @@ const PlayMusicPages = () => {
         // Perbarui state komponen dengan informasi lagu yang sedang diputar
         setCurrentTrack({ title, artist, artwork});
         // setsecondmusic(duration);
-
         showNotification(title, artist, duration, artwork);
     };
 
@@ -163,9 +98,8 @@ const PlayMusicPages = () => {
 
         MusicControl.setNowPlaying({
             title: title,
-            artwork: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB63Matv0X_AbDKOFkcU8HNHK7AKGomXEGUQ&usqp=CAU',
+            artwork: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmA4J9PD5rgcLxyoMFsTnw1jHyEO0w4nk7dA&usqp=CAU',
             artist: artist,
-            album: 'Thriller',
             duration: duration,
         });
     };
@@ -180,16 +114,34 @@ const PlayMusicPages = () => {
     useEffect(() => {
         const updateNotificationPlayback = () => {
             MusicControl.updatePlayback({
-                elapsedTime: progress.position
+                elapsedTime: progress.position,
             });
         };
-        
         updateNotificationPlayback();
     }, [progress.position, progress.duration]);
     
     useEffect(() => {
-        // Set nilai position ke nilai progress terbaru
-        setPosition(progress.position);
+        if (!HasSliding) {
+            // Set nilai position ke nilai progress terbaru
+            setPosition(progress.position);
+        }
+
+        async function checkTrackPlayerShuffleEnd() {
+            const getvalue = await AsyncStorage.getItem('QueQueSelected');
+            const selectedvalue = parseInt(getvalue, 10);
+
+            if (selectedvalue == 2) {
+                if (progress.duration && progress.position) {
+                    const remainingTime = progress.duration - progress.position;
+                    if (remainingTime <= 1) {
+                        handleNextPress();
+                    }
+                }
+            }
+        }
+
+        checkTrackPlayerShuffleEnd();
+        
     }, [progress.position]);
 
     const onSlidingComplete = async (value) => {
@@ -197,18 +149,20 @@ const PlayMusicPages = () => {
     };
 
     useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
-        // Saat lagu berikutnya diputar, perbarui informasi lagu
+        const RenderShuffle = async () => {
+            const storedIndexes = await AsyncStorage.getItem('shuffledIndexes');
+            if (storedIndexes) {
+                setShuffledIds(JSON.parse(storedIndexes));
+            }
+        }
+        
         updateTrackInfo();
+        RenderShuffle();
     });
-    MusicControl.enableControl('play', true);
-    MusicControl.enableControl('pause', true);
-    MusicControl.enableControl('stop', false);
-    MusicControl.enableControl('nextTrack', true);
-    MusicControl.enableControl('previousTrack', true);
-    MusicControl.enableControl('seek', true) 
-    MusicControl.enableControl('changePlaybackPosition', true);
-    MusicControl.enableControl('closeNotification', true, { when: 'paused' })
-    MusicControl.enableBackgroundMode(true);
+
+    useTrackPlayerEvents([Event.PlaybackQueueEnded], async(event) => {
+        await TrackPlayer.skip(0);
+    });
 
     const onValueChange = (value) => {
         setPosition(value);
@@ -217,19 +171,56 @@ const PlayMusicPages = () => {
     // bagian control interface music play pause next prev
 
     const handleNextPress = async () => {
-        await TrackPlayer.skipToNext();
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        if (!getvalue) {
+            console.log("alamak");
+            await AsyncStorage.setItem('QueQueSelected', '1');
+        }
+        const selectedvalue = parseInt(getvalue, 10);
+        if (selectedvalue === 1) {
+            await TrackPlayer.skipToNext();
+        }else if(selectedvalue === 2) {
+            const currentIndex = await TrackPlayer.getCurrentTrack();
+            const currentId = shuffledIds.indexOf(currentIndex); // Dapatkan indeks dari id yang sedang diputar sekarang
+
+            let nextIndex = currentId + 1;
+            if (nextIndex >= shuffledIds.length) {
+            nextIndex = 0; // Kembali ke awal array jika sudah mencapai akhir
+            }
+
+            await TrackPlayer.skip(shuffledIds[nextIndex]);
+            // console.log('next id: ', shuffledIds[nextIndex]);
+        }else if(selectedvalue === 3) {
+            await TrackPlayer.skipToNext();
+        }
         await TrackPlayer.play();
         setIsPlaying(true);
         MusicControl.updatePlayback({
             state: MusicControl.STATE_PLAYING,
         });
         updateTrackInfo();
-        const trackIndex = await TrackPlayer.getCurrentTrack();
-        console.log(`Track index : ${trackIndex}`);
     };
 
     const handlePrevPress = async () => {
-        await TrackPlayer.skipToPrevious();
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        const selectedvalue = parseInt(getvalue, 10);
+        if (selectedvalue === 1) {
+            await TrackPlayer.skipToPrevious();
+
+        }else if(selectedvalue === 2) {
+            const currentIndex = await TrackPlayer.getCurrentTrack();
+            const currentId = shuffledIds.indexOf(currentIndex); // Dapatkan indeks dari id yang sedang diputar sekarang
+
+            let previousIndex = currentId - 1;
+            if (previousIndex < 0) {
+            previousIndex = shuffledIds.length - 1; // Kembali ke akhir array jika sudah mencapai awal
+            }
+
+            await TrackPlayer.skip(shuffledIds[previousIndex]);
+            // console.log('previous id: ', shuffledIds[previousIndex]);
+        }else if(selectedvalue === 3) {
+            await TrackPlayer.skipToPrevious();
+        }
         await TrackPlayer.play();
         setIsPlaying(true);
         MusicControl.updatePlayback({
@@ -253,7 +244,80 @@ const PlayMusicPages = () => {
         MusicControl.updatePlayback({
             state: MusicControl.STATE_PLAYING,
         });
+    };
+
+    const RenderselectedQueQue = async () => {
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        const selectedvalue = getvalue ? parseInt(getvalue, 10) : 1;
+        try {
+            if (selectedvalue === 3) {
+                setselected(repeatImage);
+                await TrackPlayer.setRepeatMode(RepeatMode.Track);
+            }else if(selectedvalue === 2) {
+                setselected(shuffleImage);
+                await TrackPlayer.setRepeatMode(RepeatMode.Off);
+            }else if(selectedvalue === 1) {
+                setselected(berurutImage);
+                await TrackPlayer.setRepeatMode(RepeatMode.Off);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
+
+    const ChangeSelectedOptions = async () => {
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        const selectedvalue = parseInt(getvalue, 10);
+        try {
+            if (selectedvalue === 3) {
+                await AsyncStorage.setItem('QueQueSelected', '1');
+                await TrackPlayer.setRepeatMode(RepeatMode.Off);
+                setSelectedOption(1);
+                setselected(berurutImage);
+                ToastAndroid.showWithGravityAndOffset(
+                    'Pemutaran Berurut',
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER,
+                    0,
+                    450
+                );
+            }else if(selectedvalue === 2) {
+                await AsyncStorage.setItem('QueQueSelected', '3');
+                await TrackPlayer.setRepeatMode(RepeatMode.Track);
+                setSelectedOption(3);
+                setselected(repeatImage);
+                ToastAndroid.showWithGravityAndOffset(
+                    'Ulangi Music',
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER,
+                    0,
+                    450
+                );
+            }else if(selectedvalue === 1) {
+                await AsyncStorage.setItem('QueQueSelected', '2');
+                await TrackPlayer.setRepeatMode(RepeatMode.Off);
+                setSelectedOption(2);
+                setselected(shuffleImage);
+                ToastAndroid.showWithGravityAndOffset(
+                    'Pemutaran Acak',
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER,
+                    0,
+                    450
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(()=> {
+        MusicControl.on(Command.play, async () => handlePlay());
+        MusicControl.on(Command.pause, async () => handlePause());
+        MusicControl.on(Command.nextTrack, async () => handleNextPress());
+        MusicControl.on(Command.previousTrack, async () => handlePrevPress());
+    }, []);
+
 
     return (
         <View style={{flex: 1, backgroundColor:'rgb(15,15,15)'}}>
@@ -262,7 +326,7 @@ const PlayMusicPages = () => {
             <View style={{flex: 1}}>
                 <View style={{height: 350, width: '100%'}}>
                     <View style={{justifyContent: 'center', alignItems: 'center', flex: 1}}>
-                        <Image source={{uri: currentTrack?.artwork}} style={{height: 300, width: 300, borderRadius: 20}}></Image>
+                        <Image source={{uri: currentTrack?.artwork}} style={{height: 300, width: 300, borderRadius: 20}} />
                     </View>
                 </View>
                 <View style={{ height: 80}}>
@@ -305,12 +369,16 @@ const PlayMusicPages = () => {
                                 maximumValue={progress.duration}
                                 value={position}
                                 onValueChange={(value) => onValueChange(Number(value))}
-                                onSlidingComplete={(value) => onSlidingComplete(Number(value))}
+                                onSlidingStart={(value) => setHasSliding(true)}
+                                onSlidingComplete={(value) => {
+                                    setHasSliding(false);
+                                    onSlidingComplete(Number(value));
+                                }}
                                 thumbTintColor='#FFFFFF'
                                 minimumTrackTintColor='#F2F2F2'
                                 maximumTrackTintColor='#808080'
-                                trackStyle={{height: 2.5, borderRadius: 50}}
-                                thumbStyle={{height: 13, width: 13}}
+                                trackStyle={HasSliding ? {height: 2.5, borderRadius: 50, borderWidth: 6, borderColor: 'rgba(58,58,58,0.5)'} : {height: 2.5, borderRadius: 50}}
+                                thumbStyle={HasSliding ? {height: 14, width: 14} : {height: 12, width: 12}}
                             />
                         </View>
                     </View>
@@ -321,9 +389,9 @@ const PlayMusicPages = () => {
                 </View>
                 <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
                     <View style={{flex:1, borderColor: 'black', alignItems: 'center', justifyContent: 'center'}}>
-                        <View>
-                            <Image source={require('../../icons/berurut.png')} style={{height: 24, width: 24}} />
-                        </View>
+                        <TouchableOpacity onPress={ChangeSelectedOptions}>
+                            <Image source={selected} style={{height: selectedOption === 1 ? 24 : 26, width: selectedOption === 1 ? 24 : 26}} />
+                        </TouchableOpacity>
                     </View>
                     <View style={{flex:1, borderColor: 'black', alignItems: 'center', justifyContent: 'center'}}>
                         <View>

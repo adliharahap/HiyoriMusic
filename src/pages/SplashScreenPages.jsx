@@ -7,6 +7,7 @@ import { GetMusicFiles } from '../utils/GetMusicFiles_Service';
 import CheckMetadataMusicDb from '../utils/CheckMetadataMusiDb';
 import cleanUpDatabaseIfMusicDoesntExits from '../utils/cleanUpDatabaseIfMusicDoesntExits';
 import { openDatabaseConnection } from '../utils/databases/database';
+import TrackPlayer from 'react-native-track-player';
 
 
 const SplashScreenPages = () => {
@@ -43,6 +44,7 @@ const SplashScreenPages = () => {
             const writePermission = await check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
 
             if (readPermission === RESULTS.GRANTED && writePermission === RESULTS.GRANTED) {
+                await TrackPlayer.setupPlayer({});
                 try {
                     const getData = await AsyncStorage.getItem('musicData');
                     const data = JSON.parse(getData);
@@ -60,7 +62,7 @@ const SplashScreenPages = () => {
                         }, 1500);
                     }
                 } catch (error) {
-                    console.error(error);
+                    console.log(error);
                 }
             } else {
                 if(readPermission === RESULTS.DENIED && writePermission === RESULTS.DENIED) {

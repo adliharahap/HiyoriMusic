@@ -7,10 +7,11 @@ import PlaylistPages from '../pages/PlaylistPages';
 import { Svg, Path} from 'react-native-svg';
 import { Image, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import TextTicker from 'react-native-text-ticker';
-import TrackPlayer, { useProgress, Event, State} from 'react-native-track-player';
+import TrackPlayer, { useProgress, Event, State, useTrackPlayerEvents} from 'react-native-track-player';
 import MusicControl, { Command } from 'react-native-music-control';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Slider } from '@miblanchard/react-native-slider';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createBottomTabNavigator();
 
@@ -20,6 +21,67 @@ const Navbar = () => {
     const [isPlaying, setIsPlaying] = useState(false);
     const [isplayfirst, setisplayfirst] = useState(false);
     const [MusicPlay, setMusicPlay] = useState({title: '', artist: '', duration: 0, artwork: null,});
+    const [shuffledIds, setShuffledIds] = useState([]);
+
+    const RenderShuffle = async () => {
+        const storedIndexes = await AsyncStorage.getItem('shuffledIndexes');
+        if (storedIndexes) {
+            setShuffledIds(JSON.parse(storedIndexes));
+        }
+    }
+
+    // Fungsi untuk mengacak array index id
+    const shuffleArray = (length) => {
+        const originalArray = Array.from({ length }, (_, index) => index);
+        const shuffledArray = [];
+
+        while (originalArray.length > 0) {
+            const randomIndex = Math.floor(Math.random() * originalArray.length);
+            const randomElement = originalArray.splice(randomIndex, 1)[0];
+            shuffledArray.push(randomElement);
+        }
+
+        return shuffledArray;
+    };
+
+    const getAllTrackIds = async () => {
+        const ids = await TrackPlayer.getQueue();
+        setTotalIds(ids.length);
+    
+        // Mengacak array index id
+        const shuffledArray = await shuffleArray(ids.length);
+        // console.log('shuffle array:', JSON.stringify(shuffledArray));
+        setShuffledIds(shuffledArray);
+        await AsyncStorage.setItem('shuffledIndexes', JSON.stringify(shuffledArray));
+    };
+
+    useEffect(()=>{
+        getAllTrackIds();
+        RenderShuffle();
+    },[]);
+
+    useEffect(() => {
+        async function checkTrackPlayerShuffleEnd() {
+            const getvalue = await AsyncStorage.getItem('QueQueSelected');
+            const selectedvalue = parseInt(getvalue, 10);
+
+            if (selectedvalue == 2) {
+                if (progress.duration && progress.position) {
+                    const remainingTime = progress.duration - progress.position;
+                    if (remainingTime <= 1) {
+                        handleNextPress();
+                    }
+                }
+            }
+        }
+        
+        checkTrackPlayerShuffleEnd();
+    }, [progress.position]);
+
+    useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
+        RenderShuffle();
+        updateTrackInfo(); // Saat lagu berikutnya diputar, perbarui informasi lagu
+    });
 
     const GetTrackPlayed = async () => {
         const trackId = await TrackPlayer.getCurrentTrack();
@@ -30,11 +92,11 @@ const Navbar = () => {
         setMusicPlay({title, artist, duration, artwork});
 
         const playerState = await TrackPlayer.getState();
-        if (playerState === TrackPlayer.STATE_PLAYING) {
-            setIsPlaying(false);
-        } else {
+        if (playerState === State.Playing) {
             setIsPlaying(true);
             setisplayfirst(true);
+        } else {
+            setIsPlaying(false);
         }
     };
 
@@ -47,24 +109,27 @@ const Navbar = () => {
         TrackPlayer.addEventListener(Event.PlaybackTrackChanged, onTrackChange);
     }, []);
 
-    MusicControl.on(Command.play, async () => {
-        await TrackPlayer.play();
-        setIsPlaying(true);
-        // Perbarui ikon di notifikasi saat tombol play diklik
-        MusicControl.updatePlayback({
-            state: MusicControl.STATE_PLAYING,
-        });
-    });
+    const updateTrackInfo = async () => {
+        // const duration = Math.round(progress.duration);
 
-    // Event handler untuk tombol pause di notifikasi
-    MusicControl.on(Command.pause, async () => {
-        await TrackPlayer.pause();
-        setIsPlaying(false);
-        // Perbarui ikon di notifikasi saat tombol pause diklik
-        MusicControl.updatePlayback({
-            state: MusicControl.STATE_PAUSED,
+        const trackId = await TrackPlayer.getCurrentTrack();
+        const trackObject = await TrackPlayer.getTrack(trackId);
+
+        // Dapatkan informasi yang Anda butuhkan dari objek lagu (judul, artis, dll.)
+        const { title, artist, duration, artwork} = trackObject;
+        showNotification(title, artist, duration, artwork);
+    };
+
+    const showNotification = async (title, artist, duration, artwork) => {
+
+        MusicControl.setNowPlaying({
+            title: title,
+            artwork: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmA4J9PD5rgcLxyoMFsTnw1jHyEO0w4nk7dA&usqp=CAU',
+            artist: artist,
+            album: 'Thriller',
+            duration: duration,
         });
-    });
+    };
 
     const handlePause = async () => {
         await TrackPlayer.pause();
@@ -79,39 +144,111 @@ const Navbar = () => {
         setIsPlaying(true);
         // Perbarui ikon di notifikasi saat tombol play diklik
         MusicControl.updatePlayback({
-            state: MusicControl.STATE_PLAYING,
+            state: MusicControl.STATE_PLAYING, 
         });
     };
 
     const handleNextPress = async () => {
-        await TrackPlayer.skipToNext();
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        const selectedvalue = parseInt(getvalue, 10);
+        if (selectedvalue === 1) {
+            await TrackPlayer.skipToNext();
+        }else if(selectedvalue === 2) {
+            const currentIndex = await TrackPlayer.getCurrentTrack();
+            const currentId = shuffledIds.indexOf(currentIndex); // Dapatkan indeks dari id yang sedang diputar sekarang
+
+            let nextIndex = currentId + 1;
+            if (nextIndex >= shuffledIds.length) {
+            nextIndex = 0; // Kembali ke awal array jika sudah mencapai akhir
+            }
+
+            await TrackPlayer.skip(shuffledIds[nextIndex]);
+            // console.log('next id: ', shuffledIds[nextIndex]);
+        }else if(selectedvalue === 3) {
+            await TrackPlayer.skipToNext();
+        }
         await TrackPlayer.play();
         setIsPlaying(true);
         MusicControl.updatePlayback({
             state: MusicControl.STATE_PLAYING,
         });
+        updateTrackInfo();
     };
 
     const handlePrevPress = async () => {
-        await TrackPlayer.skipToPrevious();
+        const getvalue = await AsyncStorage.getItem('QueQueSelected');
+        const selectedvalue = parseInt(getvalue, 10);
+        if (selectedvalue === 1) {
+            await TrackPlayer.skipToPrevious();
+        }else if(selectedvalue === 2) {
+            const currentIndex = await TrackPlayer.getCurrentTrack();
+            const currentId = shuffledIds.indexOf(currentIndex); // Dapatkan indeks dari id yang sedang diputar sekarang
+
+            let previousIndex = currentId - 1;
+            if (previousIndex < 0) {
+            previousIndex = shuffledIds.length - 1; // Kembali ke akhir array jika sudah mencapai awal
+            }
+
+            await TrackPlayer.skip(shuffledIds[previousIndex]);
+            // console.log('previous id: ', shuffledIds[previousIndex]);
+        }else if(selectedvalue === 3) {
+            await TrackPlayer.skipToPrevious();
+        }
         await TrackPlayer.play();
         setIsPlaying(true);
         MusicControl.updatePlayback({
             state: MusicControl.STATE_PLAYING,
         });
+        updateTrackInfo();
     };
 
     useEffect(() => {
         const checkplaypause = async () => {
             const state = await TrackPlayer.getState();
             if (state === State.Playing) {
-                handlePlay();
+                MusicControl.updatePlayback({
+                    state: MusicControl.STATE_PLAYING,
+                });
+                setIsPlaying(true);
             }else {
-                handlePause();
+                MusicControl.updatePlayback({
+                    state: MusicControl.STATE_PAUSED,
+                });
+                setIsPlaying(false);
             }
         }
         checkplaypause();
     }, [progress.position]);
+
+    useEffect(() => {
+        const updateNotificationPlayback = () => {
+            MusicControl.updatePlayback({
+                elapsedTime: progress.position
+            });
+        };
+        
+        updateNotificationPlayback();
+    }, [progress.position, progress.duration]);
+
+    useEffect(() => {
+        MusicControl.enableBackgroundMode(true);
+        MusicControl.enableControl('play', true);
+        MusicControl.enableControl('pause', true);
+        MusicControl.enableControl('stop', false);
+        MusicControl.enableControl('nextTrack', true);
+        MusicControl.enableControl('previousTrack', true);
+        MusicControl.enableControl('changePlaybackPosition', true);
+        MusicControl.enableControl('seek', true);
+        // MusicControl.enableControl('closeNotification', true, { when: 'never' })
+        MusicControl.handleAudioInterruptions(true);
+
+        // Event handler untuk tombol play di notifikasi
+        MusicControl.on(Command.play, async () => handlePlay());
+        MusicControl.on(Command.pause, async () => handlePause());
+        MusicControl.on(Command.nextTrack, async () => handleNextPress());
+        MusicControl.on(Command.previousTrack, async () => handlePrevPress());
+        MusicControl.on(Command.seek, async(value)=> {await TrackPlayer.seekTo(value)});
+    }, []);
 
 
 
@@ -145,7 +282,7 @@ const Navbar = () => {
                     <View style={{flex: 1, justifyContent: 'flex-end', flexDirection: 'row'}}>
                         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
                             <TouchableOpacity onPress={handlePrevPress}>
-                                <Svg width="16" height="16" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg" style={{transform: [{rotate: '180deg'}]}}>
+                                <Svg width="18" height="18" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg" style={{transform: [{rotate: '180deg'}]}}>
                                     <Path d="M1.79062 2.09314C1.63821 1.98427 1.43774 1.96972 1.27121 2.05542C1.10467 2.14112 1 2.31271 1 2.5V12.5C1 12.6873 1.10467 12.8589 1.27121 12.9446C1.43774 13.0303 1.63821 13.0157 1.79062 12.9069L8.79062 7.90687C8.92202 7.81301 9 7.66148 9 7.5C9 7.33853 8.92202 7.18699 8.79062 7.09314L1.79062 2.09314Z" fill="#FFFFFF" />
                                     <Path d="M13 13H14V2H13V13Z" fill="#FFFFFF"/>
                                 </Svg>
@@ -168,7 +305,7 @@ const Navbar = () => {
                         </View>
                         <View style={{flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                             <TouchableOpacity onPress={handleNextPress}>
-                                <Svg width="16" height="16" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
+                                <Svg width="18" height="18" viewBox="0 0 15 15" xmlns="http://www.w3.org/2000/svg">
                                     <Path d="M1.79062 2.09314C1.63821 1.98427 1.43774 1.96972 1.27121 2.05542C1.10467 2.14112 1 2.31271 1 2.5V12.5C1 12.6873 1.10467 12.8589 1.27121 12.9446C1.43774 13.0303 1.63821 13.0157 1.79062 12.9069L8.79062 7.90687C8.92202 7.81301 9 7.66148 9 7.5C9 7.33853 8.92202 7.18699 8.79062 7.09314L1.79062 2.09314Z" fill="#FFFFFF" />
                                     <Path d="M13 13H14V2H13V13Z" fill="#FFFFFF"/>
                                 </Svg>
